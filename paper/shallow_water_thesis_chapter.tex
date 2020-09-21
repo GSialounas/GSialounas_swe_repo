@@ -212,7 +212,9 @@
 \thispagestyle{empty}
 \tableofcontents
 \section{Introduction}\label{sec_intro}
-In this chapter we apply model and mesh adaptivity to the shallow water equations. The aim will be to enable the adaptive introduction and removal of layers of fluid based on an a posteriori error indicator.  The rest of the chapter is as follows.
+In this chapter we apply model and mesh adaptivity to the shallow water equations. The aim will be to enable the adaptive introduction and removal of layers of fluid based on an a posteriori error indicator.  The rest of the chapter is structured as follows.
+
+We present the model problem and notation in \S \ref{sec:setup}.  In \S\ref{sec:num_disc} we present the numerical discreization of the domain and the numerical schemes we use for the spatial and temporal approximation of the problem. In \S \ref{sec_bounds} we develop the the reconstructions we use to obtain the a-posteriori error bound. In \S\ref{sec_num_exp} we present the numerical experiments we have conducted to test the reconstructions and the bound's behaviour.  In \S\ref{sec:discussion} we discuss the findings from the experiments. Finally, we present our concluding remarks in \S \ref{sec:conclusion}.
 \section{Preliminaries and Model Setup}\label{sec:setup}
 \subsection{Notation}\label{subsec_modelprob}
 In this section we present the notation we will be using as well as the model problem.  Let $\qb{0,L}$, $L\in \mathbb{R}^+$ and $t\in \qb{0,T}$ with $T\in \mathbb{R}^+$.  We define the vector of conserved quantities $\vect{u}$  where
@@ -298,12 +300,13 @@ v\qp{x,t}&=v_0\qp{x},
 where $h_0, v_0\in \leb_\infty\qp{\qb{0,L}}$ and with periodic boundary conditions.
 \end{Rem}
 
-\subsection{Numerical Discretization}
+\section{Numerical Discretization}\label{sec:num_disc}
+\subsection{Discretization of the space-time domain}
 \begin{Rem}[Discretization of temporal interval]
 	We  partition the temporal interval $\qb{0,T}$ into sub-intervals with endpoints given by $0=t^0<t^1<\cdots<t^N=T,\, N\in \mathbb{N}$.    The time-step size is defined by $\Delta t^n:=t^{n+1}-t^n,\, n=0,\cdots,N-1$.    We will use a constant time-step $\Delta t^n=\Delta t \quad \forall n\in \bracegs{0,\cdots, N-1}$.
 \end{Rem}
 \begin{Rem}[Discretization of spatial domain]
-We partition the spatial interval $\W=\qb{0,L}$ into sub-intervals with endpoints given by $0=x_0<x_1<\cdots<x_M=L,\, M\in \mathbb{N}$.  The spatial-step size  defined by $\Delta x_m:=x_{m+1}-x_m,\, m=0,\cdots,-1$.   We will use a constant spatial-step  $\Delta x_j =\Delta x \quad \forall j\in \bracegs{0,\cdots,M-1}$.
+We partition the spatial interval $\W=\qb{0,L}$ into sub-intervals with endpoints given by $0=x_0<x_1<\cdots<x_M=L,\, M\in \mathbb{N}$.  The spatial-step size  defined by $\Delta x_m:=x_{m+1}-x_m,\, m=0,\cdots,M-1$.   We will use a constant spatial-step  $\Delta x_j =\Delta x \quad \forall j\in \bracegs{0,\cdots,M-1}$.
 \end{Rem}
 \subsection{Numerical schemes}
 In this section we describe the approximations to the temporal and spatial derivatives from (\ref{eq_gen_hyp_conservation_law}).  
@@ -329,7 +332,7 @@ We approximate the temporal derivative $\partial_t\vect{u}$ using Strong-Stabili
 
 \begin{Rem}[SSP-RK methods]
 We will use the SSP methods  from \cite{shu1988total} for the temporal of component  of the discretization. As an illustrative example consider the $3-$stage SSP RK method ($\vect{U}^{\qp{i}}$ refers to the $i^{th}-$stage):
-\begin{equation}
+\begin{equation}\label{eq_SSP3_RK}
 \begin{aligned}
 \textbf{U}^{\qp{0}}&=\textbf{U}^n,\\
 \textbf{U}^{\qp{1}}&=\textbf{U}^n-\Delta t \vect{f}_h\qp{\textbf{U}^{\qp{0}}},\\
@@ -405,7 +408,10 @@ We now use the temporal reconstruction to obtain the spatio-temporal one.  In or
 \begin{Defn}[Finite difference approximation of deratives of \vect{u}]
 We will use the notation 
 $\FD\qp{\vect{U}^n_j}$
-to denote the chosen finite difference approximation to $\partial_x\vect{u}\qp{x_j,t^n}$.
+to denote the chosen finite difference approximation to $\partial_x\vect{u}\qp{x_j,t^n}$. Unless otherwise stated, we use a central difference quotient for defining our spatio-temporal reconstruction, i.e.
+\begin{equation}
+\FD\qp{\vect{U}^n_j}:=\frac{\vect{U}^{n}_{j+1}-\vect{U}^{n}_{j-1}}{2\Delta x}.
+\end{equation}
 \end{Defn}
 \begin{Defn}[Spatio-temporal reconstruction]\label{defn_spatio-temporal reconstruction}
 	Let $ \widehat{\textbf{U}}^t=\qp{\rec{h}^t,\rec{q}^t}$ be a temporal reconstruction of the numerical solution $\vect{U}$ of (\ref{eq_gen_hyp_conservation_law}).  The spatio-temporal reconstruction $\widehat{\textbf{U}}^{ts}=\qp{\rec{h}^{ts},\rec{q}^{ts}}\in\mathbb{V}^t_r\qp{0,T; \mathbb{V}^s_q}$ is given by
@@ -498,10 +504,19 @@ The objectives in this section are to study the performance of the bound given i
 &\times\exp\qp{\int^t_0\frac{\Cueta\Cof\Norm{\partial_x\rec{\vect{u}}\qp{\cdot,s}}_{\leb_\infty\qp{I}}+\Coeta^2}{\Cueta}\mathrm{d}s}
 \end{aligned}
 \end{equation}
+\begin{Rem}[Performance of the residual $\Norm{\vect{R}}_{\leb_2\qp{I\times\qp{0,t}}}$]
+In the first instance, we will examine the time evolution of the term $\Norm{\vect{R}}_{\leb_2\qp{I\times\qp{0,t}}}$ instead of the entire bound.
+\end{Rem}
+\begin{Rem}[Temporal approximations]
+In this section, we will carry out tests using two different spatial approximation.   The first will be the forward Euler approximation and the second one will be the $SSP-RK3$ approximation specified in (\ref{eq_SSP3_RK}).
+\end{Rem}
+\begin{Rem}[Degree of the reconstruction]\label{rem_degree_of_reconstruction}
+The conditions presented in Defns. \ref{defn_temp_rec_shw} and \ref{defn_spatio-temporal reconstruction} result in a polynomial reconstruction which is of third order in both time and space.  It is possible to obtain a first order reconstruciton (in both time and space) by using only a small subset of the conditions used in the aforementioned definitions: namely, the nodal equivalence conditions. 
+\end{Rem}
 The assessment of the performance of the bound will be on the basis of the Effectivity Index (EI) of the error indicators and of the Estimated Order of Convergence (EOC).
 \begin{Defn}[Effectivity Index (EI)] The effectivity index of an error indicator $\eta$ compared to a given error at time $t$ is defined as
 \begin{equation}\label{eq_EI}
-EI\qp{error\qp{t}, \eta\qp{t}} := \frac{\eta_1\qp{t}}{error\qp{t}}
+EI\qp{error\qp{t}, \eta\qp{t}} := \frac{\eta\qp{t}}{error\qp{t}}
 \end{equation}
 \end{Defn}
 
@@ -520,13 +535,13 @@ EOC\qp{a,h;i} = \frac{log\qp{a\qp{i+1}/a\qp{i}}}{log\qp{h\qp{i+1}/h\qp{i}}}.
 \end{equation}
 with periodic boundary conditions. 
 \subsection{Test results}\label{sec:num_exp}
-In the tests that follows, for the time being, we are just looking at $\Norm{\vect{R}}_{\leb_2}$ \textbf{Put the coupling and the method in the caption and change Rhv to Rq}
+In the tests that follows, for the time being, we are just looking at $\Norm{\vect{R}}_{\leb_2\qp{I\times\qp{0,t}}}$.
 \subsection*{$\Delta t \sim \Delta x^1$}
 \begin{figure}[H]
 	\hspace{-3cm}
 	%\centering
 	\includegraphics[scale=0.55]{../figures/fig_SHW_RK1_LXF_rec1_pow_oneplots_1x5_shw_periodic}	
-	\caption{Reconstruction from Defn. \ref{defn_spatio-temporal reconstruction}. (from left to right) Error $e$ given by (\ref{eq_error_eR}), Estimator $\eta$ given by (\ref{eq_estimator}), EOC error, EOC Estimator, Effectivity Index.}
+	\caption{Forward-Euler with first order reconstruction.  Temporal-spatial step coupling of $\Delta t\sim \Delta x^1$. (from left to right) $\Normgs{R}_{\leb_2\qp{0,t; \qb{0,L}}}$, EOC Estimator, $\Normgs{\mathcal{R}_h}_{\leb_2\qp{0,t; \qb{0,L}}}$, $\Normgs{\mathcal{R}_q}_{\leb_2\qp{0,t; \qb{0,L}}}$.}
 	\label{fig_all_RK1_LXF_rec1_pow_one}
 \end{figure}
 
@@ -534,7 +549,7 @@ In the tests that follows, for the time being, we are just looking at $\Norm{\ve
 	\hspace{-3cm}
 	%\centering
 	\includegraphics[scale=0.55]{../figures/fig_SHW_RK3_LXF_rec3_pow_oneplots_1x5_shw_periodic}	
-	\caption{Reconstruction from Defn. \ref{defn_spatio-temporal reconstruction}. (from left to right) Error $e$ given by (\ref{eq_error_eR}), Estimator $\eta$ given by (\ref{eq_estimator}), EOC error, EOC Estimator, Effectivity Index.}
+	\caption{RK3 with third order reconstruction.  Temporal-spatial step coupling of $\Delta t\sim \Delta x^1$. (from left to right) $\Normgs{R}_{\leb_2\qp{0,t; \qb{0,L}}}$, EOC Estimator, $\Normgs{\mathcal{R}_h}_{\leb_2\qp{0,t; \qb{0,L}}}$, $\Normgs{\mathcal{R}_q}_{\leb_2\qp{0,t; \qb{0,L}}}$.}
 	\label{fig_all_RK3_LXF_rec3_pow_one}
 \end{figure}
 
@@ -545,7 +560,7 @@ In the tests that follows, for the time being, we are just looking at $\Norm{\ve
 	\hspace{-3cm}
 	%\centering
 	\includegraphics[scale=0.55]{../figures/fig_SHW_RK1_LXF_rec1_fixedplots_1x5_shw_periodic}	
-	\caption{Reconstruction from Defn. \ref{defn_spatio-temporal reconstruction}. (from left to right) Error $e$ given by (\ref{eq_error_eR}), Estimator $\eta$ given by (\ref{eq_estimator}), EOC error, EOC Estimator, Effectivity Index.}
+	\caption{Forward-Euler with first order reconstruction.  Temporal-spatial step coupling of $\Delta t\sim \Delta x_{finest}$. (from left to right) $\Normgs{R}_{\leb_2\qp{0,t; \qb{0,L}}}$, EOC Estimator, $\Normgs{\mathcal{R}_h}_{\leb_2\qp{0,t; \qb{0,L}}}$, $\Normgs{\mathcal{R}_q}_{\leb_2\qp{0,t; \qb{0,L}}}$.}
 	\label{fig_all_RK1_LXF_rec1_fixed}
 \end{figure}
 
@@ -553,7 +568,7 @@ In the tests that follows, for the time being, we are just looking at $\Norm{\ve
 	\hspace{-3cm}
 	%\centering
 	\includegraphics[scale=0.55]{../figures/fig_SHW_RK3_LXF_rec3_fixedplots_1x5_shw_periodic}	
-	\caption{Reconstruction from Defn. \ref{defn_spatio-temporal reconstruction}. (from left to right) Error $e$ given by (\ref{eq_error_eR}), Estimator $\eta$ given by (\ref{eq_estimator}), EOC error, EOC Estimator, Effectivity Index.}
+	\caption{RK3 with third order reconstruction.  Temporal-spatial step coupling of $\Delta t\sim \Delta x_{finest}$. (from left to right) $\Normgs{R}_{\leb_2\qp{0,t; \qb{0,L}}}$, EOC Estimator, $\Normgs{\mathcal{R}_h}_{\leb_2\qp{0,t; \qb{0,L}}}$, $\Normgs{\mathcal{R}_q}_{\leb_2\qp{0,t; \qb{0,L}}}$.}
 	\label{fig_all_RK3_LXF_rec3_fixed}
 \end{figure}
 
@@ -562,7 +577,7 @@ In the tests that follows, for the time being, we are just looking at $\Norm{\ve
 	\hspace{-3cm}
 	%\centering
 	\includegraphics[scale=0.55]{../figures/fig_SHW_RK1_LXF_rec1_pow_twoplots_1x5_shw_periodic}	
-	\caption{Reconstruction from Defn. \ref{defn_spatio-temporal reconstruction}. (from left to right) Error $e$ given by (\ref{eq_error_eR}), Estimator $\eta$ given by (\ref{eq_estimator}), EOC error, EOC Estimator, Effectivity Index.}
+	\caption{Forward-Euler with first order reconstruction.  Temporal-spatial step coupling of $\Delta t\sim \Delta x_{finest}$. (from left to right) $\Normgs{R}_{\leb_2\qp{0,t; \qb{0,L}}}$, EOC Estimator, $\Normgs{\mathcal{R}_h}_{\leb_2\qp{0,t; \qb{0,L}}}$, $\Normgs{\mathcal{R}_q}_{\leb_2\qp{0,t; \qb{0,L}}}$.}
 	\label{fig_all_RK1_LXF_rec1_pow_two}
 \end{figure}
 
@@ -570,7 +585,7 @@ In the tests that follows, for the time being, we are just looking at $\Norm{\ve
 	\hspace{-3cm}
 	%\centering
 	\includegraphics[scale=0.55]{../figures/fig_SHW_RK3_LXF_rec3_pow_twoplots_1x5_shw_periodic}	
-	\caption{Reconstruction from Defn. \ref{defn_spatio-temporal reconstruction}. (from left to right) Error $e$ given by (\ref{eq_error_eR}), Estimator $\eta$ given by (\ref{eq_estimator}), EOC error, EOC Estimator, Effectivity Index.}
+	\caption{RK3 with third order reconstruction.  Temporal-spatial step coupling of $\Delta t\sim \Delta x_{finest}$. (from left to right) $\Normgs{R}_{\leb_2\qp{0,t; \qb{0,L}}}$, EOC Estimator, $\Normgs{\mathcal{R}_h}_{\leb_2\qp{0,t; \qb{0,L}}}$, $\Normgs{\mathcal{R}_q}_{\leb_2\qp{0,t; \qb{0,L}}}$.}
 	\label{fig_all_RK3_LXF_rec3_pow_two}
 \end{figure}
 
@@ -579,7 +594,7 @@ In the tests that follows, for the time being, we are just looking at $\Norm{\ve
 
 \section{Discussion}\label{sec:discussion}
 
-\section{Conclusion}
+\section{Conclusion}\label{sec:conclusion}
 
 
 \bibliography{apostfd_bibdesk}

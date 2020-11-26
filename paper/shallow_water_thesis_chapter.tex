@@ -2,7 +2,9 @@
 \long\def\/*#1*/{}
 \usepackage{verbatim}
 
-
+\usepackage{caption}
+\usepackage{floatrow}   
+\usepackage{subcaption}
 \usepackage{listings,chngcntr}
 \usepackage{media9}
 \usepackage{hyperref}% http://ctan.org/pkg/hyperref
@@ -525,78 +527,185 @@ EI\qp{error\qp{t}, \eta\qp{t}} := \frac{\eta\qp{t}}{error\qp{t}}
 EOC\qp{a,h;i} = \frac{log\qp{a\qp{i+1}/a\qp{i}}}{log\qp{h\qp{i+1}/h\qp{i}}}.
 \end{equation}
 \end{Defn}
-
-\subsection{Test 1: Smooth initial conditions}  We benchmark the performance of the estimator (\ref{eq_estimator}) for a sinusoidal initial condition:
-\begin{equation}
+\begin{Rem}[Notation]
+In the experiments we conduct in this section,  the notation we use is as follows:
+\begin{equation}\label{eq_quantities_test}
 \begin{aligned}
-\widehat{h}_0&=	0.2+0.1\sin\qp{\pi x /16}\\
-\widehat{q}_0&=0
+\alpha\quad &:\quad \text{amplitude},\\
+\lambda\quad &:\quad \text{wavelength},\\
+k=\frac{2\pi}{\lambda}\quad &:\quad \text{wavenumber},\\
+d\quad &:\quad \text{water depth}\quad \text{and}\\
+\omega = \sqrt{gk\tanh\qp{kd}}\quad &:\quad \text{angular frequency}.\\
 \end{aligned}
 \end{equation}
-with periodic boundary conditions. 
-\subsection{Test results}\label{sec:num_exp}
-In the tests that follows, for the time being, we are just looking at $\Norm{\vect{R}}_{\leb_2\qp{I\times\qp{0,t}}}$.
-\subsection*{$\Delta t \sim \Delta x^1$}
+\end{Rem}
+\subsection{Test 1: Smooth initial conditions}  We benchmark the performance of $\Norm{\vect{R}}^2_{\leb_2\qp{\Omega\times\qp{0,t}}}$, where $\vect{R}$ is defined in  (\ref{eq_residuals}).  We use periodic boundary conditions and a sinusoidal initial condition:
+\begin{equation}\label{eq_ic_test}
+\begin{aligned}
+h_0\qp{x}&= d+a\sin\qp{kx},\quad \text{and}\\
+v_0\qp{x}&=a\omega \frac{\cosh\qp{kh_0}}{sinh(kd)}\sin(k x),
+\end{aligned}
+\end{equation}
+with $\alpha =.1,\, d=2$ and $\lambda = 32\pi$.  The initial flux $q_0$ is given by $h_0v_0$.  
+\begin{Rem}[Discretization and reconstruction] 
+In this test we use and SSP-3 temporal discretization, a WENO-3 spatial discretization and the reconstruction is obtained using the framework from Defns. \ref{defn_temp_rec_shw} and \ref{defn_spatio-temporal reconstruction}.
+\end{Rem}
+
+The results are show in Fig. \ref{fig_test_1_benchmark}.
+
+\begin{figure}[h]
+\centering
+	\includegraphics[scale=0.45]{../figures/fig_SHW_RK3_WENO3_rec3_fixedplots_1x5_shw_periodic}	
+	\caption{Test 1: Evolution of $\Norm{\vect{R}}^2_{\leb_2\qp{\Omega\times\qp{0,t}}}$ for sinusoidal initial conditions given by (\ref{eq_ic_test}).  From left to right: $\Norm{\vect{R}}^2_{\leb_2\qp{\Omega\times\qp{0,t}}}$, EOC($\Norm{\vect{R}}^2_{\leb_2\qp{\Omega\times\qp{0,t}}}$), $\Norm{\vect{R}_h}^2_{\leb_2\qp{\Omega\times\qp{0,t}}}$ and $\Norm{\vect{R}_q}^2_{\leb_2\qp{\Omega\times\qp{0,t}}}$.}
+	\label{fig_test_1_benchmark}
+\end{figure}
+\subsection{Test 2: Detection of shocks}
+In this test, we show heuristically that the indicator can be used to detect the presence of shocks for (\ref{eq_model_SWE}). This is achieved by examing the local behavior of $\vect{R}$ in each space-time interval $I \times \qb{t, t+\mathrm{d}t}$, i.e. $\Norm{\vect{R}}^2_{\leb_2\qp{I\times\qp{0,t}}}$, where $I=\qb{x, x+\Delta x}$.  We use the same test conditions as in Test 1.  The results are shown in 
+Figs. \ref{fig_beforeshock} for 
+
 \begin{figure}[H]
-	\hspace{-3cm}
-	%\centering
-	\includegraphics[scale=0.55]{../figures/fig_SHW_RK1_LXF_rec1_pow_oneplots_1x5_shw_periodic}	
-	\caption{Forward-Euler with first order reconstruction.  Temporal-spatial step coupling of $\Delta t\sim \Delta x^1$. (from left to right) $\Normgs{R}_{\leb_2\qp{0,t; \qb{0,L}}}$, EOC Estimator, $\Normgs{\mathcal{R}_h}_{\leb_2\qp{0,t; \qb{0,L}}}$, $\Normgs{\mathcal{R}_q}_{\leb_2\qp{0,t; \qb{0,L}}}$.}
-	\label{fig_all_RK1_LXF_rec1_pow_one}
+\centering
+	\includegraphics[scale=0.45]{../figures/fig_SHW_RK3_WENO3_rec3_fixed_21_dtdx_1}	
+	\caption{A plot of an SSP3-WENO3 discretization of (\ref{eq_model_SWE}) with initial conditions (\ref{eq_ic_sinIC}) before the appeareance of a shock. (From left to right): surface height, momentum flux and local indicator.}
+	\label{fig_beforeshock}
 \end{figure}
 
 \begin{figure}[H]
-	\hspace{-3cm}
-	%\centering
-	\includegraphics[scale=0.55]{../figures/fig_SHW_RK3_LXF_rec3_pow_oneplots_1x5_shw_periodic}	
-	\caption{RK3 with third order reconstruction.  Temporal-spatial step coupling of $\Delta t\sim \Delta x^1$. (from left to right) $\Normgs{R}_{\leb_2\qp{0,t; \qb{0,L}}}$, EOC Estimator, $\Normgs{\mathcal{R}_h}_{\leb_2\qp{0,t; \qb{0,L}}}$, $\Normgs{\mathcal{R}_q}_{\leb_2\qp{0,t; \qb{0,L}}}$.}
-	\label{fig_all_RK3_LXF_rec3_pow_one}
+	\centering
+	\includegraphics[scale=0.45]{../figures/fig_SHW_RK3_WENO3_rec3_fixed_621_dtdx_1}	
+	\caption{A plot of an SSP3-WENO3 discretization of (\ref{eq_model_SWE}) with initial conditions (\ref{eq_ic_sinIC}) after the appeareance of a shock. (From left to right): surface height, moment flux and local indicator }
+	\label{fig_aftershock}
 \end{figure}
 
 
 
-\subsection*{$\Delta t \sim \Delta x_{finest}$}
-\begin{figure}[H]
-	\hspace{-3cm}
-	%\centering
-	\includegraphics[scale=0.55]{../figures/fig_SHW_RK1_LXF_rec1_fixedplots_1x5_shw_periodic}	
-	\caption{Forward-Euler with first order reconstruction.  Temporal-spatial step coupling of $\Delta t\sim \Delta x_{finest}$. (from left to right) $\Normgs{R}_{\leb_2\qp{0,t; \qb{0,L}}}$, EOC Estimator, $\Normgs{\mathcal{R}_h}_{\leb_2\qp{0,t; \qb{0,L}}}$, $\Normgs{\mathcal{R}_q}_{\leb_2\qp{0,t; \qb{0,L}}}$.}
-	\label{fig_all_RK1_LXF_rec1_fixed}
-\end{figure}
-
-\begin{figure}[H]
-	\hspace{-3cm}
-	%\centering
-	\includegraphics[scale=0.55]{../figures/fig_SHW_RK3_LXF_rec3_fixedplots_1x5_shw_periodic}	
-	\caption{RK3 with third order reconstruction.  Temporal-spatial step coupling of $\Delta t\sim \Delta x_{finest}$. (from left to right) $\Normgs{R}_{\leb_2\qp{0,t; \qb{0,L}}}$, EOC Estimator, $\Normgs{\mathcal{R}_h}_{\leb_2\qp{0,t; \qb{0,L}}}$, $\Normgs{\mathcal{R}_q}_{\leb_2\qp{0,t; \qb{0,L}}}$.}
-	\label{fig_all_RK3_LXF_rec3_fixed}
-\end{figure}
-
-\subsection*{$\Delta t \sim \Delta x_{finest}^2$}
-\begin{figure}[H]
-	\hspace{-3cm}
-	%\centering
-	\includegraphics[scale=0.55]{../figures/fig_SHW_RK1_LXF_rec1_pow_twoplots_1x5_shw_periodic}	
-	\caption{Forward-Euler with first order reconstruction.  Temporal-spatial step coupling of $\Delta t\sim \Delta x_{finest}$. (from left to right) $\Normgs{R}_{\leb_2\qp{0,t; \qb{0,L}}}$, EOC Estimator, $\Normgs{\mathcal{R}_h}_{\leb_2\qp{0,t; \qb{0,L}}}$, $\Normgs{\mathcal{R}_q}_{\leb_2\qp{0,t; \qb{0,L}}}$.}
-	\label{fig_all_RK1_LXF_rec1_pow_two}
-\end{figure}
-
-\begin{figure}[H]
-	\hspace{-3cm}
-	%\centering
-	\includegraphics[scale=0.55]{../figures/fig_SHW_RK3_LXF_rec3_pow_twoplots_1x5_shw_periodic}	
-	\caption{RK3 with third order reconstruction.  Temporal-spatial step coupling of $\Delta t\sim \Delta x_{finest}$. (from left to right) $\Normgs{R}_{\leb_2\qp{0,t; \qb{0,L}}}$, EOC Estimator, $\Normgs{\mathcal{R}_h}_{\leb_2\qp{0,t; \qb{0,L}}}$, $\Normgs{\mathcal{R}_q}_{\leb_2\qp{0,t; \qb{0,L}}}$.}
-	\label{fig_all_RK3_LXF_rec3_pow_two}
-\end{figure}
 
 
+\subsection{Test 2: SWE with forcing}
+We use the method of manufactured solutions to obtain an exact solution for the shallow water equations.  In particular, let the exact solution be 
+\begin{equation}
+\begin{aligned}
+h\qp{x,t}&= d+a\sin\qp{\omega t-kx}\\
+v\qp{x,t}&=a\omega \frac{\cosh\qp{kh}}{sinh(kd)}\sin(\omega t-k x)
+\end{aligned}
+\end{equation}
 
 
 \section{Discussion}\label{sec:discussion}
 
 \section{Conclusion}\label{sec:conclusion}
 
-
 \bibliography{apostfd_bibdesk}
 \bibliographystyle{ieeetr}
+
+\appendix
+\section{Appendix}
+\subsection{Brief Excursion into SSP3-WENO}
+In this section we will make a brief excursion to test the properties of the SSP3-WENO scheme. We look at three different conservation laws: linear advection, Burgers equation and lastly the shallow water equations.  
+
+In the linear advection case we look at smooth, hat and discontinuous initial conditions while for Burgers and shallow water we will only look at smooth initial conditions.  In all three cases we look at periodic boundary conditions.
+\subsubsection{Linear Advection}
+We  test the an SSP3 temporal, WENO spatial scheme using the framework in Defns. \ref{defn_spatio-temporal reconstruction} for the reconstruction.  We test this for three different initial conditions.  Firstly, smooth initial conditions given by 
+\begin{equation}\label{eq_ic_sinIC}
+u_0\qp{x} = sin\qp{2\pi x},\\
+\end{equation}
+secondly hat initial conditions
+\begin{equation}\label{eq_ic_hat}
+u_0\qp{x}=\begin{cases}
+0\quad &\text{if} \quad x\leq .125,\\
+\qp{x-\qp{  .125}}/.125 \quad &\text{if}\quad .125\leq x\leq .25,\\
+\qp{.375-x}/.125\quad&\text{if}\quad  .25\leq x\leq .375,\\
+0\quad&\text{if}\quad  .375\leq x
+\end{cases}
+\end{equation}
+and lastly step (discontinuous) initial conditions
+\begin{equation}\label{eq_ic_step}
+u_0\qp{x}=\begin{cases}
+1\quad&\text{if}\quad \norm{x-.25}\leq .125\\
+0\quad&\text{if} \quad \norm{x-.25}> .125
+\end{cases}.
+\end{equation}
+\begin{Rem}[Exact solution to the linear advection equation]  The exact solution to the linear advection equation with initial conditions $u\qp{x,t}u_0\qp{x}$ is given by
+	\begin{equation}
+	u\qp{x,t}=u_0\qp{x-t}.
+	\end{equation}
+\end{Rem}
+The results are shown in Figs. \ref{fig_SSP3WENO_sinIC_plots_1x5_linadvect}-\ref{fig_SSP3WENO_stepIC_plots_1x5_linadvect}.
+\begin{figure}[H]
+	\hspace{-3cm}
+	%\centering
+	\includegraphics[scale=0.55]{../figures/fig_SSP3WENO_sinIC_plots_1x5_linadvect}	
+	\caption{SSP3-WENO5 for linear advection using initial conditions (\ref{eq_ic_sinIC}).  Temporal-spatial step coupling of $\Delta t\sim \Delta x_{finest}$. (from left to right) Error, Estimator, EOC(Error), EOC(Estimator) and Effectivity Index.}
+	\label{fig_SSP3WENO_sinIC_plots_1x5_linadvect}
+\end{figure}
+\begin{figure}[H]
+	\hspace{-3cm}
+	%\centering
+	\includegraphics[scale=0.55]{../figures/fig_SSP3WENO_hatIC_plots_1x5_linadvect}	
+	\caption{SSP3-WENO5 for linear advection using initial conditions (\ref{eq_ic_hat}).  Temporal-spatial step coupling of $\Delta t\sim \Delta x$. (from left to right) Error, Estimator, EOC(Error), EOC(Estimator) and Effectivity Index.}
+	\label{fig_SSP3WENO_hatIC_plots_1x5_linadvect}
+\end{figure}
+\begin{figure}[H]
+	\hspace{-3cm}
+	%\centering
+	\includegraphics[scale=0.55]{../figures/fig_SSP3WENO_stepIC_plots_1x5_linadvect}	
+	\caption{SSP3-WENO5 for linear advection  using initial conditions (\ref{eq_ic_step}).  Temporal-spatial step coupling of $\Delta t\sim \Delta x$. (from left to right) Error, Estimator, EOC(Error), EOC(Estimator) and Effectivity Index.}
+	\label{fig_SSP3WENO_stepIC_plots_1x5_linadvect}
+\end{figure}
+\subsubsection{Burgers' Equation}
+In this section we present some results for Burgers equation.
+\begin{Rem}[Burgers' equation] We consider Burgers' equation
+	\begin{equation}\label{eq_burgers_model}
+u_t+\partial_x\qp{\frac{u^2}{2}}=0
+\end{equation}
+in the interval $\qb{-\pi, \pi}$, with periodic boundary conditions and smooth initial conditions
+\begin{equation}\label{eq_burgers_ic_smooth}
+u_0\qp{x}=-\sin \qp{x}.
+\end{equation}
+\end{Rem}
+\begin{Rem}[Exact solution to (\ref{eq_burgers_model}) before shock formation]
+The exact solution to (\ref{eq_burgers_model}) prior to shock formation, with intial conditions given by (\ref{eq_burgers_ic_smooth}) and periodic boundary conditions can be given in terms of besself functions as 
+\begin{equation}
+u\qp{x,t}= -2\sum_{k=1}^{\infty}\frac{J_k\qp{kt}}{kt}sin\qp{kx},
+\end{equation}
+where $J_k$ denotes the $k$th Bessel function.  Since the sequence is decaying we take a truncation (up to $k=100$) as an approximation to the exact solution (see \cite{giesselmann2015posteriori}).
+\end{Rem}
+
+
+Since this is a nonlinear conservation law, we are forced to use a different a-posteriori bound.
+\begin{Lemma}[Stability and error-control for Burgers' equation]\label{Lemma_burger}
+Let $u\qp{x,t}$ solve 
+\begin{equation}
+\begin{aligned}
+u_t+\partial_x\qp{\frac{u^2}{2}}&=0\\
+u\qp{x,0}&=u_0\qp{x}
+\end{aligned}
+\end{equation}
+with periodic boundary conditions.  Let $v$ satisfy the perturbed pde
+\begin{equation}
+\begin{aligned}
+v_t+\partial_x\qp{\frac{v^2}{2}}&=-R\\
+v\qp{x,0}&=v_0\qp{x}.
+\end{aligned}
+\end{equation}
+Then, the error $e:=u-v$ satisfies
+\begin{equation}
+\begin{aligned}
+\Norm{e\qp{t}}^2_{L_2}\leq \exp\qp{\int_0^t\qp{\Norm{v_x\qp{s}}_{L_\infty}+1}\mathrm{d}s}\qb{\Norm{e\qp{0}}_{L_2}^2+\int_0^t\Norm{R\qp{s}}^2_{L_2}\mathrm{d}s}
+\end{aligned}
+\end{equation}
+\end{Lemma}
+\begin{Rem}[A-posteriori error bound for Burgers' equation prior to shock formation] From Lemma \ref{Lemma_burger}, we define the a-poseteriori error indicator
+\begin{equation}\label{eq_indicator_burger}
+\eta\qp{t}:=\qp{\exp\qp{\int_0^t\qp{\Norm{v_x\qp{s}}_{L_\infty}+1}\mathrm{d}s}\qb{\Norm{e\qp{0}}_{L_2}^2+\int_0^t\Norm{R\qp{s}}^2_{L_2}\mathrm{d}s}}^{1/2}
+\end{equation}
+\end{Rem}
+In the figure below we present the performance of an indicator derived from the framework in Defns.  \ref{defn_spatio-temporal reconstruction} based on  a SSP3-WENO5 scheme.  The indicator in this case is given by (\ref{eq_indicator_burger}).
+\begin{figure}[H]
+	\hspace{-3cm}
+	%\centering
+	\includegraphics[scale=0.55]{../figures/fig_SSP3WENO_sinIC_plots_1x5_burgers}	
+	\caption{SSP3-WENO5 for Burgers' equation using initial conditions (\ref{eq_ic_step}).  Temporal-spatial step coupling of $\Delta t\sim \Delta x$. (from left to right) Error, Estimator given by (\ref{eq_indicator_burger}), EOC(Error), EOC(Estimator) and Effectivity Index.}
+	\label{fig_SSP3WENO_sinIC_plots_1x5_burgers}
+\end{figure}
 \end{document}

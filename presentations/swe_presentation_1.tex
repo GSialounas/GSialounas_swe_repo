@@ -1,0 +1,84 @@
+\documentclass{beamer}
+%
+% Choose how your presentation looks.
+%
+% For more themes, color themes and font themes, see:
+% http://deic.uab.es/~iblanes/beamer_gallery/index_by_theme.html
+%
+\mode<presentation>
+{
+	\usetheme{default}      % or try Darmstadt, Madrid, Warsaw, ...
+	\usecolortheme{default} % or try albatross, beaver, crane, ...
+	\usefonttheme{default}  % or try serif, structurebold, ...
+	\setbeamertemplate{navigation symbols}{}
+	\setbeamertemplate{caption}[numbered]
+} 
+\newcommand{\qp}[1]{\left(#1\right)}
+\newcommand{\qpb}[1]{\left(#1\right]}
+\newcommand{\qb}[1]{\left[#1\right]}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\title[ENO/WENO schemes for shallow water]{ENO/WENO schemes for the Shallow Water  Equations}
+\author{Georgios Sialounas}
+\institute{UoR, ICL, MPE CDT}
+\date{22 Oct 2020}
+
+\begin{document}
+	
+	\begin{frame}
+	\titlepage
+\end{frame}
+
+% Uncomment these lines for an automatically generated outline.
+%\begin{frame}{Outline}
+%  \tableofcontents
+%\end{frame}
+
+\section{Introduction}
+
+\begin{frame}{Introduction}
+We present the ENO/WENO schemes for the shallow water equations in 1D and potentially in 2D:
+\begin{equation}
+\begin{aligned}
+\begin{array}{c}
+h_t\\
+q_t
+\end{array}
+\begin{array}{c}
++\\
++
+\end{array}
+\begin{array}{c}
+\qp{q}_x\\
+\qp{hv^2+\frac{1}{2}gh^2}_x
+\end{array}
+\begin{array}{c}
+=0\\
+=0
+\end{array},
+\end{aligned}
+\end{equation}
+where $q:=hv$.
+\vskip 1cm
+
+%\begin{block}{Examples}
+%	Some examples of commonly used commands and features are included, to help you get started.
+%\end{block}
+
+\end{frame}
+
+\section{Numerical Schemes}
+
+
+
+\begin{frame}{ENO/WENO schemes}
+
+
+\end{frame}
+
+\section{Numerical experiments}
+
+
+\end{document}

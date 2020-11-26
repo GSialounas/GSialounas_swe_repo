@@ -1,0 +1,21 @@
+function dF = resWENO5_gen_cons(q,ax,dx)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%       Compute the Residual for 1d wave equation using WENO5
+%
+%                         Residual = dq/dx
+%
+%               coded by Manuel Diaz, NTU, 2012.08.20
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ax,zy: scalar advection velocities in x and y directions respectively.
+
+% Along x
+% a=max(abs(dflux(w))); v=0.5*(flux(w)+a*w); u=circshift(0.5*(flux(w)-a*w),[0,-1]);
+[axp,axm]=fluxsplitting_scalar_general(ax,'LF');
+axm=circshift(axm,[0 1]);
+
+dq = WENO5_reconstruction(axm,q,[0 -1]);
+dq = dq + WENO5_reconstruction(axp,q,[0 +1]);
+
+% The Residual
+dF = -dq/dx;
